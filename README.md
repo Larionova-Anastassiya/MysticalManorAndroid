@@ -37,19 +37,19 @@ The **Secret Gallery** is normally unlocked through exploration, but the Artist 
 
 | Character Selection | Grand Hall |
 |:---:|:---:|
-| ![Character Selection](../screenshots/01-character-selection.jpg) | ![Grand Hall](../screenshots/02-grand-hall.jpg) |
+| ![Character Selection](screenshots/01-character-selection.jpg) | ![Grand Hall](screenshots/02-grand-hall.jpg) |
 
 ### Exploration & Combat
 
 | Room Exploration | Shadow Guardian Battle |
 |:---:|:---:|
-| ![Exploration](../screenshots/03-exploration.jpg) | ![Battle](../screenshots/04-battle.jpg) |
+| ![Exploration](screenshots/03-exploration.jpg) | ![Battle](screenshots/04-battle.jpg) |
 
 ### Inventory & Achievements
 
 | Inventory | Player Profile |
 |:---:|:---:|
-| ![Inventory](../screenshots/05-inventory.jpg) | ![Achievements](../screenshots/06-achievements.jpg) |
+| ![Inventory](screenshots/05-inventory.jpg) | ![Achievements](screenshots/06-achievements.jpg) |
 
 ## 🛠 Technologies & Architecture
 

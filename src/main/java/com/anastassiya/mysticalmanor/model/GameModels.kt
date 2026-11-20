@@ -69,5 +69,9 @@ data class GameUiState(
     val selectedPaintingId: String? = null,
     val enemyHealth: Int = 40,
     val message: String = "Welcome to Mystical Manor.",
-    val enemiesDefeated: Int = 0
+    val enemiesDefeated: Int = 0,
+
+    val isEnteringPainting: Boolean = false,
+
+    val combatPulse: Int = 0
 )

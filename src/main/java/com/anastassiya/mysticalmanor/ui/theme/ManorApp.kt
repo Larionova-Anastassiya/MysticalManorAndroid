@@ -22,9 +22,90 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.anastassiya.mysticalmanor.model.*
 import com.anastassiya.mysticalmanor.viewmodel.ManorViewModel
 
+import androidx.activity.compose.BackHandler
+
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.draw.scale
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.dp
+
+
+
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+import com.anastassiya.mysticalmanor.data.repository.JournalRepository
+import com.anastassiya.mysticalmanor.journal.JournalViewModel
+import com.anastassiya.mysticalmanor.journal.JournalViewModelFactory
+import com.anastassiya.mysticalmanor.journal.JournalListScreen
+import com.anastassiya.mysticalmanor.journal.JournalDetailScreen
+import com.anastassiya.mysticalmanor.journal.JournalFormScreen
+
+
+
 @Composable
-fun ManorApp(vm: ManorViewModel = viewModel()) {
+fun ManorApp(
+    journalRepository: JournalRepository,
+    vm: ManorViewModel = viewModel()
+) {
+
     val state by vm.uiState.collectAsStateWithLifecycle()
+
+    val journalVm: JournalViewModel = viewModel(
+        factory = remember(journalRepository) {
+            JournalViewModelFactory(journalRepository)
+        }
+    )
+
+    val navController = rememberNavController()
+
+    LaunchedEffect(state.screen) {
+
+        val targetRoute = state.screen.name.lowercase()
+
+        if (navController.currentDestination?.route != targetRoute) {
+
+            navController.navigate(targetRoute) {
+
+                launchSingleTop = true
+
+                if (state.screen == GameScreen.WELCOME) {
+                    popUpTo("welcome") {
+                        inclusive = false
+                    }
+                }
+            }
+        }
+    }
+
+    val journalMessage by journalVm.message
+        .collectAsStateWithLifecycle()
+
+    val snackbarHostState = remember {
+        SnackbarHostState()
+    }
+
+    LaunchedEffect(journalMessage) {
+        val message = journalMessage
+        if (message != null) {
+            journalVm.clearMessage()
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     MaterialTheme(
         colorScheme = darkColorScheme(
@@ -35,47 +116,286 @@ fun ManorApp(vm: ManorViewModel = viewModel()) {
             onSurface = Color.White
         )
     ) {
+
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = ManorPurple
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .safeDrawingPadding()
-                    .padding(18.dp)
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
-                if (state.screen != GameScreen.WELCOME) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextButton(onClick = {
-                            vm.navigate(GameScreen.HALL)
-                        }) {
-                            Text("⌂ Grand Hall")
-                        }
-                        Text(
-                            "✦ MYSTICAL MANOR",
-                            color = ManorGold
+                MagicalParticles(
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                NavHost(
+                    navController = navController,
+                    startDestination = "welcome",
+
+                    enterTransition = {
+                        fadeIn(
+                            animationSpec = tween(450)
+                        ) + scaleIn(
+                            initialScale = 0.96f,
+                            animationSpec = tween(450)
+                        )
+                    },
+
+                    exitTransition = {
+                        fadeOut(
+                            animationSpec = tween(220)
+                        ) + scaleOut(
+                            targetScale = 1.03f,
+                            animationSpec = tween(220)
+                        )
+                    },
+
+                    popEnterTransition = {
+                        fadeIn(
+                            animationSpec = tween(350)
+                        )
+                    },
+
+                    popExitTransition = {
+                        fadeOut(
+                            animationSpec = tween(200)
                         )
                     }
-                    Spacer(Modifier.height(10.dp))
+                ) {
+
+                    composable("welcome") {
+                        ManorScreenFrame(GameScreen.WELCOME, vm) {
+                            WelcomeScreen(vm)
+                        }
+                    }
+
+                    composable("hall") {
+                        ManorScreenFrame(GameScreen.HALL, vm) {
+                            HallScreen(
+                                vm = vm,
+                                state = state,
+                                onOpenJournal = {
+                                    navController.navigate("journal")
+                                }
+                            )
+                        }
+                    }
+
+                    composable("room") {
+                        ManorScreenFrame(GameScreen.ROOM, vm) {
+                            RoomScreen(vm, state)
+                        }
+                    }
+
+                    composable("painting") {
+                        ManorScreenFrame(GameScreen.PAINTING, vm) {
+                            PaintingScreen(vm, state)
+                        }
+                    }
+
+                    composable("battle") {
+                        ManorScreenFrame(GameScreen.BATTLE, vm) {
+                            BattleScreen(vm, state)
+                        }
+                    }
+
+                    composable("inventory") {
+                        ManorScreenFrame(GameScreen.INVENTORY, vm) {
+                            InventoryScreen(vm, state)
+                        }
+                    }
+
+                    composable("profile") {
+                        ManorScreenFrame(GameScreen.PROFILE, vm) {
+                            ProfileScreen(vm, state)
+                        }
+                    }
+
+
+                    composable("journal") {
+                        JournalListScreen(
+                            vm = journalVm,
+                            onCreate = {
+                                navController.navigate("journal/new")
+                            },
+                            onOpen = { id ->
+                                navController.navigate("journal/detail/$id")
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable("journal/new") {
+                        JournalFormScreen(
+                            vm = journalVm,
+                            questId = null,
+                            onSaved = {
+                                navController.popBackStack()
+                            },
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable("journal/detail/{questId}") { entry ->
+
+                        val questId = entry.arguments
+                            ?.getString("questId")
+                            ?.toLongOrNull()
+
+                        if (questId == null) {
+                            Text("Invalid quest ID")
+                        } else {
+                            JournalDetailScreen(
+                                vm = journalVm,
+                                questId = questId,
+                                onEdit = {
+                                    navController.navigate(
+                                        "journal/edit/$questId"
+                                    )
+                                },
+                                onDeleted = {
+                                    navController.popBackStack()
+                                },
+                                onBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                    }
+
+                    composable("journal/edit/{questId}") { entry ->
+
+                        val questId = entry.arguments
+                            ?.getString("questId")
+                            ?.toLongOrNull()
+
+                        if (questId == null) {
+                            Text("Invalid quest ID")
+                        } else {
+                            val quest by remember(journalVm, questId) {
+                                journalVm.observeQuest(questId)
+                            }.collectAsStateWithLifecycle(initialValue = null)
+
+                            if (quest == null) {
+                                Text("Loading quest...")
+                            } else {
+                                key(questId) {
+                                    JournalFormScreen(
+                                        vm = journalVm,
+                                        questId = questId,
+                                        initialTitle = quest!!.title,
+                                        initialDescription = quest!!.description,
+                                        initialReward =
+                                            quest!!.rewardGold.toString(),
+                                        onSaved = {
+                                            navController.popBackStack()
+                                        },
+                                        onBack = {
+                                            navController.popBackStack()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
-                when (state.screen) {
-                    GameScreen.WELCOME -> WelcomeScreen(vm)
-                    GameScreen.HALL -> HallScreen(vm, state)
-                    GameScreen.ROOM -> RoomScreen(vm, state)
-                    GameScreen.PAINTING -> PaintingScreen(vm, state)
-                    GameScreen.BATTLE -> BattleScreen(vm, state)
-                    GameScreen.INVENTORY -> InventoryScreen(vm, state)
-                    GameScreen.PROFILE -> ProfileScreen(vm, state)
-                }
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
             }
         }
     }
+}
+
+@Composable
+private fun ManorScreenFrame(
+    screen: GameScreen,
+    vm: ManorViewModel,
+    content: @Composable () -> Unit
+) {
+
+    val showHeader = screen != GameScreen.WELCOME
+
+    BackHandler(enabled = showHeader) {
+
+        val previousScreen = when (screen) {
+
+            GameScreen.HALL -> GameScreen.WELCOME
+
+            GameScreen.ROOM,
+            GameScreen.INVENTORY,
+            GameScreen.PROFILE -> GameScreen.HALL
+
+            GameScreen.PAINTING -> GameScreen.ROOM
+
+            GameScreen.BATTLE -> GameScreen.PAINTING
+
+            GameScreen.WELCOME -> GameScreen.WELCOME
+        }
+
+        vm.navigate(previousScreen)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .safeDrawingPadding()
+            .padding(18.dp)
+    ) {
+
+        if (showHeader) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                TextButton(
+                    onClick = {
+                        vm.navigate(GameScreen.HALL)
+                    }
+                ) {
+                    Text("⌂ Grand Hall")
+                }
+
+                Text(
+                    "✦ MYSTICAL MANOR",
+                    color = ManorGold
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
+        }
+
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun PlayerNameField(
+    name: String,
+    onNameChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = name,
+        onValueChange = onNameChange,
+        label = {
+            Text("Your name")
+        },
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
@@ -99,12 +419,12 @@ fun WelcomeScreen(vm: ManorViewModel) {
             "A magical adventure awaits beyond the canvas."
         )
 
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Your name") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+        //state hosting
+        PlayerNameField(
+            name = name,
+            onNameChange = { newName ->
+                name = newName
+            }
         )
 
         Text("Choose your character", color = ManorGold)
@@ -144,7 +464,11 @@ fun WelcomeScreen(vm: ManorViewModel) {
 }
 
 @Composable
-fun HallScreen(vm: ManorViewModel, state: GameUiState) {
+fun HallScreen(
+    vm: ManorViewModel,
+    state: GameUiState,
+    onOpenJournal: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -192,6 +516,10 @@ fun HallScreen(vm: ManorViewModel, state: GameUiState) {
         ManorButton("🏆 PROFILE & ACHIEVEMENTS") {
             vm.navigate(GameScreen.PROFILE)
         }
+        ManorButton(
+            text = "📜 EXPLORER'S JOURNAL",
+            onClick = onOpenJournal
+        )
         OutlinedButton(
             onClick = vm::restart,
             modifier = Modifier.fillMaxWidth()
@@ -217,6 +545,18 @@ fun RoomScreen(vm: ManorViewModel, state: GameUiState) {
 
         if (room.hasTreasure) {
             item {
+                val chestOpened = room.id in state.openedChests
+
+                AnimatedVisibility(
+                    visible = chestOpened,
+                    enter = fadeIn() + scaleIn()
+                ) {
+                    Text(
+                        text = "✦ TREASURE FOUND · Moon Crystal",
+                        color = ManorGold
+                    )
+                }
+
                 ManorCard(
                     "Ancient Treasure Chest",
                     if (room.id in state.openedChests)
@@ -250,6 +590,12 @@ fun PaintingScreen(vm: ManorViewModel, state: GameUiState) {
     val painting = vm.currentPainting ?: return
     val completed = painting.id in state.completedPaintings
 
+    val portalGlow by animateFloatAsState(
+        targetValue = if (state.isEnteringPainting) 1.08f else 1f,
+        animationSpec = tween(650),
+        label = "Portal glow"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -267,7 +613,20 @@ fun PaintingScreen(vm: ManorViewModel, state: GameUiState) {
                 painter = painterResource(id = R.drawable.magical_manor),
                 contentDescription = "Magical painting in Mystical Manor",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .scale(portalGlow)
+            )
+        }
+
+        AnimatedVisibility(
+            visible = state.isEnteringPainting,
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut()
+        ) {
+            Text(
+                text = "✦ Entering the painting...",
+                color = ManorGold
             )
         }
 
@@ -280,8 +639,12 @@ fun PaintingScreen(vm: ManorViewModel, state: GameUiState) {
         Text(state.message, color = Color.LightGray)
 
         ManorButton(
-            if (completed) "WORLD RESTORED" else "ENTER PAINTING",
-            enabled = !completed,
+            text = if (completed) {
+                "WORLD RESTORED"
+            } else {
+                "ENTER PAINTING"
+            },
+            enabled = !completed && !state.isEnteringPainting,
             onClick = vm::enterPainting
         )
         OutlinedButton(
@@ -295,25 +658,60 @@ fun PaintingScreen(vm: ManorViewModel, state: GameUiState) {
 
 @Composable
 fun BattleScreen(vm: ManorViewModel, state: GameUiState) {
+    val shake = remember {
+        Animatable(0f)
+    }
+
+    LaunchedEffect(state.combatPulse) {
+
+        if (state.combatPulse > 0) {
+
+            shake.animateTo(
+                targetValue = 9f,
+                animationSpec = tween(65)
+            )
+
+            shake.animateTo(
+                targetValue = -9f,
+                animationSpec = tween(65)
+            )
+
+            shake.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(100)
+            )
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .offset(x = shake.value.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         ManorTitle("⚔ Shadow Guardian", "A battle inside the painting")
 
         StatChip("GUARDIAN HP", "${state.enemyHealth}/40")
+        val enemyFraction by animateFloatAsState(
+            targetValue = state.enemyHealth / 40f,
+            animationSpec = tween(500),
+            label = "Enemy health"
+        )
         LinearProgressIndicator(
-            progress = { state.enemyHealth / 40f },
+            progress = { enemyFraction },
             modifier = Modifier.fillMaxWidth()
         )
 
         StatChip("YOUR HP", "${state.health}/${state.heroClass.maxHealth}")
+        val healthFraction by animateFloatAsState(
+            targetValue = state.health.toFloat() /
+                    state.heroClass.maxHealth,
+            animationSpec = tween(500),
+            label = "Player health"
+        )
         LinearProgressIndicator(
-            progress = {
-                state.health.toFloat() / state.heroClass.maxHealth
-            },
+            progress = { healthFraction },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -363,6 +761,7 @@ fun InventoryScreen(vm: ManorViewModel, state: GameUiState) {
         Text(state.message, color = Color.LightGray)
 
         LazyColumn(
+            modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(state.inventory) { item ->

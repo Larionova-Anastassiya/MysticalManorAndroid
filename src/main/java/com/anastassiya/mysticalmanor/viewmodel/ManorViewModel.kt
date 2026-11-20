@@ -8,7 +8,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.random.Random
 
+import androidx.lifecycle.viewModelScope
+
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.layout.offset
 class ManorViewModel : ViewModel() {
+
+    private var portalJob: Job? = null
 
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -159,24 +169,44 @@ class ManorViewModel : ViewModel() {
     }
 
     fun enterPainting() {
+
         val painting = currentPainting ?: return
 
-        if (painting.id in uiState.value.completedPaintings) {
-            setMessage("This painting has already been restored.")
+        val state = _uiState.value
+
+        if (
+            painting.id in state.completedPaintings ||
+            state.isEnteringPainting
+        ) {
             return
         }
 
-        _uiState.update {
-            it.copy(
-                screen = GameScreen.BATTLE,
-                enemyHealth = 40,
-                achievements = it.achievements + Achievement(
-                    "first-painting",
-                    "First Painting",
-                    "Enter your first magical painting."
-                ),
-                message = "A ${painting.enemyName} appears!"
-            )
+        portalJob?.cancel()
+
+        portalJob = viewModelScope.launch {
+
+            _uiState.update {
+                it.copy(
+                    isEnteringPainting = true,
+                    message = "The portal is opening..."
+                )
+            }
+
+            delay(950)
+
+            _uiState.update {
+                it.copy(
+                    screen = GameScreen.BATTLE,
+                    isEnteringPainting = false,
+                    enemyHealth = 40,
+                    achievements = it.achievements + Achievement(
+                        "first-painting",
+                        "First Painting",
+                        "Enter your first magical painting."
+                    ),
+                    message = "A ${painting.enemyName} appears!"
+                )
+            }
         }
     }
 
@@ -230,6 +260,7 @@ class ManorViewModel : ViewModel() {
             _uiState.update {
                 it.copy(
                     enemyHealth = remaining,
+                    combatPulse = it.combatPulse + 1,
                     health = newHealth,
                     message = if (newHealth == 0)
                         "You have fallen! Return to the hall to restart."
@@ -274,14 +305,25 @@ class ManorViewModel : ViewModel() {
     }
 
     fun navigate(screen: GameScreen) {
-        _uiState.update { it.copy(screen = screen) }
+
+        if (_uiState.value.isEnteringPainting) {
+            portalJob?.cancel()
+        }
+
+        _uiState.update {
+            it.copy(
+                screen = screen,
+                isEnteringPainting = false
+            )
+        }
+    }
+
+    fun restart() {
+        portalJob?.cancel()
+        _uiState.value = GameUiState()
     }
 
     fun setMessage(message: String) {
         _uiState.update { it.copy(message = message) }
-    }
-
-    fun restart() {
-        _uiState.value = GameUiState()
     }
 }

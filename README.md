@@ -1,96 +1,204 @@
 # 🏰 Mystical Manor Adventure
 
+**A magical Android adventure built with Kotlin, Jetpack Compose, MVVM, and Room.**
 
-## ✨ About the Project
-
-For my second Kotlin homework, I adapted my original **Mystical Manor Adventure** console game into an interactive Android application using **Jetpack Compose, Material 3, and ViewModel**.
-
-I wanted to preserve the atmosphere and gameplay of my first project while replacing console commands with a modern mobile interface.
-
-Players can explore mysterious rooms, discover magical paintings, collect treasures, battle Shadow Guardians, and unlock achievements.
-
-## 🎭 Choose Your Character
-
-Each character has different abilities and gameplay advantages.
-
-| Character | Special Feature |
-|---|---|
-| 🎨 **Artist** | Uses a Magic Brush and can access the Secret Gallery immediately |
-| 🧭 **Explorer** | Has additional health and receives bonus treasure rewards |
-| 🔮 **Mage** | Uses powerful magical attacks |
-
-The **Secret Gallery** is normally unlocked through exploration, but the Artist can discover it from the beginning.
-
-## 🎮 Features
-
-- **Character Selection** — choose a class and enter your name
-- **Manor Exploration** — visit rooms and discover secret locations
-- **Magical Paintings** — enter mysterious worlds
-- **Turn-Based Combat** — attack, use special abilities, heal, or escape
-- **Inventory System** — collect potions, crystals, and magical keys
-- **Achievements** — track discoveries and victories
-- **Player Statistics** — monitor health, gold, experience, and progress
-
-## 📱 Screenshots
-
-### Character Selection & Grand Hall
-
-| Character Selection | Grand Hall |
-|:---:|:---:|
-| ![Character Selection](screenshots/01-character-selection.jpg) | ![Grand Hall](screenshots/02-grand-hall.jpg) |
-
-### Exploration & Combat
-
-| Room Exploration | Shadow Guardian Battle |
-|:---:|:---:|
-| ![Exploration](screenshots/03-exploration.jpg) | ![Battle](screenshots/04-battle.jpg) |
-
-### Inventory & Achievements
-
-| Inventory | Player Profile |
-|:---:|:---:|
-| ![Inventory](screenshots/05-inventory.jpg) | ![Achievements](screenshots/06-achievements.jpg) |
-
-## 🛠 Technologies & Architecture
-
-| Technology | Purpose |
-|---|---|
-| **Kotlin** | Application and game logic |
-| **Jetpack Compose** | Declarative user interface |
-| **Material 3** | UI components and styling |
-| **ViewModel** | Game state and application logic |
-| **StateFlow** | Reactive state updates |
-| **remember** | Temporary UI state |
-| **rememberSaveable** | Saveable local UI state |
-
-I separated my application into three main layers:
-
-- `model/` — characters, items, rooms, paintings, and game state
-- `viewmodel/` — gameplay logic, navigation, and state updates
-- `ui/` — screens and reusable Compose components
-
-I also created reusable components such as `ManorCard`, `ManorButton`, `ManorTitle`, and `StatChip`.
-
-The application uses `Row`, `Column`, `Box`, `LazyColumn`, `Card`, `Image`, `TextField`, `Checkbox`, and other Compose components.
-
-### State Management
-
-I use `ViewModel` with `StateFlow` to manage the player's progress and update the interface after actions.
-
-I also use `remember` for temporary UI state and `rememberSaveable` for local state that should survive Activity recreation.
-
-This allows me to demonstrate how game state behaves when the device rotates.
-
-## ▶️ How to Run
-
-1. Clone or download this repository.
-2. Open the **`android-app`** folder in Android Studio.
-3. Wait for Gradle synchronization.
-4. Connect an Android device with USB debugging enabled or start an emulator.
-5. Select the `app` configuration and click **Run ▶**.
-
-**Requirements:** Android Studio, Android SDK, and an Android device or emulator with API 26+.
+![Kotlin](https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white)
+![Android](https://img.shields.io/badge/Android-Application-3DDC84?logo=android&logoColor=white)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack-Compose-4285F4)
+![Material 3](https://img.shields.io/badge/Material-3-6750A4)
+![Room](https://img.shields.io/badge/Database-Room-008577)
+![Architecture](https://img.shields.io/badge/Architecture-MVVM-blue)
 
 ---
 
-*Created as my second Kotlin homework, continuing the original Mystical Manor Adventure project and exploring modern Android development with Jetpack Compose and ViewModel.*
+## ✨ About the Project
+
+**Mystical Manor Adventure** is an interactive fantasy game where players explore a mysterious mansion, discover magical paintings, battle supernatural enemies, collect treasures, and unlock achievements.
+
+The application was developed and extended across three Android development assignments, gradually introducing Jetpack Compose, navigation, reactive state management, MVVM architecture, and persistent local storage.
+
+The latest addition is **Explorer's Journal**, a quest management system that allows players to create their own adventures, track progress, and preserve their quest history.
+
+## 🎮 Gameplay Features
+
+| Feature | Description |
+|---|---|
+| 🎭 Character Selection | Choose between Artist, Explorer, and Mage, each with unique abilities. |
+| 🏰 Manor Exploration | Explore rooms and unlock hidden locations. |
+| 🖼️ Magical Paintings | Discover mysterious paintings and enter their worlds. |
+| ⚔️ Combat System | Fight the Shadow Guardian using attacks, special abilities, and healing potions. |
+| 🎒 Inventory | Collect and use magical items, keys, and treasures. |
+| 🏆 Achievements | Unlock achievements through exploration and combat. |
+| ✨ Visual Effects | Animated transitions, magical particles, portal effects, and combat feedback. |
+| 📜 Explorer's Journal | Create, edit, delete, and track personal quests using persistent storage. |
+
+## 📜 Explorer's Journal — Task 3
+
+Explorer's Journal introduces a persistent quest management system integrated into the existing adventure.
+
+### Quest Management
+
+- **Create:** Add new quests with a title, description, and gold reward.
+- **Read:** Browse quests and open detailed information.
+- **Update:** Edit existing quests with input validation.
+- **Delete:** Remove quests using a confirmation dialog.
+- **Persistence:** Keep quests and their history after restarting the application.
+
+### Quest Progression
+
+Each quest follows a structured workflow:
+
+**DRAFT → ACTIVE → COMPLETED**
+
+Players can create a quest, start it, and mark it as completed.
+
+The system prevents invalid status transitions and restricts editing of completed quests.
+
+Every creation, edit, and status transition is recorded in the activity history.
+
+### Statistics and History
+
+The Journal displays:
+
+- Total number of quests
+- Active quests
+- Completed quests
+- Quest status and planned rewards
+- Timestamped activity history
+
+All information is loaded from the local Room database and updated reactively.
+
+---
+
+## 📱 Screenshots
+
+### Main Adventure
+
+| Character Selection | Grand Hall | Magical Painting |
+|:---:|:---:|:---:|
+| ![Character Selection](screenshots/character-selection.png) | ![Grand Hall](screenshots/grand-hall.png) | ![Magical Painting](screenshots/magical-painting.png) |
+
+| Combat | Inventory | Achievements |
+|:---:|:---:|:---:|
+| ![Combat](screenshots/combat.png) | ![Inventory](screenshots/inventory.png) | ![Achievements](screenshots/achievements.png) |
+
+### Explorer's Journal
+
+| Quest Board | Create Quest | Quest Details |
+|:---:|:---:|:---:|
+| ![Quest Board](screenshots/task3-quest-board.png) | ![Create Quest](screenshots/task3-create-quest.png) | ![Quest Details](screenshots/task3-quest-details.png) |
+
+| Edit Quest | Activity History | Delete Confirmation |
+|:---:|:---:|:---:|
+| ![Edit Quest](screenshots/task3-edit-quest.png) | ![Activity History](screenshots/task3-history.png) | ![Delete Confirmation](screenshots/task3-delete-dialog.png) |
+
+---
+
+## 🏗️ Architecture
+
+The application follows the **Model-View-ViewModel (MVVM)** architecture.
+
+The Explorer's Journal feature separates UI presentation, state management, business logic, and data storage.
+
+```text
+Jetpack Compose UI
+        |
+        | User actions
+        v
+JournalViewModel
+        |
+        | StateFlow / Coroutines
+        v
+JournalRepository
+        |
+        | CRUD / Transactions
+        v
+Room DAO
+        |
+        v
+SQLite Database
+        |
+        | Room Flow
+        v
+Reactive UI Updates
+```
+
+### Architecture Components
+
+| Component | Responsibility |
+|---|---|
+| Jetpack Compose | Declarative UI and reusable components |
+| Navigation Compose | Screen navigation and back stack |
+| ViewModel | UI state management and user actions |
+| StateFlow | Observable application state |
+| Repository | Data access and business operations |
+| Room Entity | Database table definitions |
+| Room DAO | Database queries and CRUD operations |
+| Kotlin Coroutines | Asynchronous database operations |
+| Room Flow | Automatic updates when stored data changes |
+
+### Local Database
+
+The application uses Room with two related tables:
+
+**`quests`**
+- Quest ID
+- Title and description
+- Gold reward
+- Status
+- Creation and modification timestamps
+
+**`quest_history`**
+- History entry ID
+- Related quest ID
+- Action description
+- Timestamp
+
+A foreign key connects the history table to its quest.
+
+Room transactions keep quest updates and activity history consistent.
+
+---
+
+## 🛠️ Technologies
+
+- **Language:** Kotlin
+- **Platform:** Android
+- **UI:** Jetpack Compose and Material 3
+- **Architecture:** MVVM
+- **Navigation:** Navigation Compose
+- **State Management:** ViewModel, StateFlow, remember, rememberSaveable
+- **Local Storage:** Room and SQLite
+- **Asynchronous Operations:** Kotlin Coroutines and Flow
+- **Build System:** Gradle Kotlin DSL
+- **IDE:** Android Studio
+
+---
+
+## 🚀 How to Run
+
+1. Clone or download this repository.
+2. Open the project in **Android Studio**.
+3. Wait for Gradle synchronization to complete.
+4. Connect an Android device or start an Android emulator.
+5. Select the **app** run configuration.
+6. Click **Run ▶**.
+
+### How to Play
+
+1. Enter your name and select a character class.
+2. Enter the Mystical Manor.
+3. Explore rooms, discover paintings, and collect treasures.
+4. Enter magical paintings and fight enemies.
+5. Open Inventory to view and use collected items.
+6. Open Profile to view achievements and character statistics.
+
+### How to Use Explorer's Journal
+
+1. Enter the **Grand Hall**.
+2. Select **Explorer's Journal**.
+3. Create a quest using the **Create New Quest** button.
+4. Open the quest to view or edit its details.
+5. Start the quest and mark it as completed.
+6. Review the activity history.
+7. Restart the application to verify that journal data is preserved.

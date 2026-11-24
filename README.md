@@ -75,13 +75,13 @@ All information is loaded from the local Room database and updated reactively.
 
 ### Explorer's Journal
 
-screenshots/task3-quest-board.png
-screenshots/task3-quest-board1.png
-screenshots/task3-quest-board2.png
-screenshots/task3-quest-board3.png
-screenshots/task3-quest-board4.png
-screenshots/task3-quest-board5.png
-screenshots/task3-quest-board6.png
+task3-quest-board.jpg
+task3-quest-board1.jpg
+task3-quest-board2.jpg
+task3-quest-board3.jpg
+task3-quest-board4.jpg
+task3-quest-board5.jpg
+task3-quest-board6.jpg
 
 ---
 

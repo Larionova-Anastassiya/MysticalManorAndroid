@@ -72,25 +72,16 @@ All information is loaded from the local Room database and updated reactively.
 
 ## 📱 Screenshots
 
-### Main Adventure
-
-| Character Selection | Grand Hall | Magical Painting |
-|:---:|:---:|:---:|
-| ![Character Selection](screenshots/character-selection.png) | ![Grand Hall](screenshots/grand-hall.png) | ![Magical Painting](screenshots/magical-painting.png) |
-
-| Combat | Inventory | Achievements |
-|:---:|:---:|:---:|
-| ![Combat](screenshots/combat.png) | ![Inventory](screenshots/inventory.png) | ![Achievements](screenshots/achievements.png) |
 
 ### Explorer's Journal
 
-| Quest Board | Create Quest | Quest Details |
-|:---:|:---:|:---:|
-| ![Quest Board](screenshots/task3-quest-board.png) | ![Create Quest](screenshots/task3-create-quest.png) | ![Quest Details](screenshots/task3-quest-details.png) |
-
-| Edit Quest | Activity History | Delete Confirmation |
-|:---:|:---:|:---:|
-| ![Edit Quest](screenshots/task3-edit-quest.png) | ![Activity History](screenshots/task3-history.png) | ![Delete Confirmation](screenshots/task3-delete-dialog.png) |
+screenshots/task3-quest-board.png
+screenshots/task3-quest-board1.png
+screenshots/task3-quest-board2.png
+screenshots/task3-quest-board3.png
+screenshots/task3-quest-board4.png
+screenshots/task3-quest-board5.png
+screenshots/task3-quest-board6.png
 
 ---
 

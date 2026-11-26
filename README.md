@@ -1,203 +1,157 @@
-# 🏰 Mystical Manor Adventure
-
-**A magical Android adventure built with Kotlin, Jetpack Compose, MVVM, and Room.**
-
-![Kotlin](https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white)
-![Android](https://img.shields.io/badge/Android-Application-3DDC84?logo=android&logoColor=white)
-![Jetpack Compose](https://img.shields.io/badge/Jetpack-Compose-4285F4)
-![Material 3](https://img.shields.io/badge/Material-3-6750A4)
-![Room](https://img.shields.io/badge/Database-Room-008577)
-![Architecture](https://img.shields.io/badge/Architecture-MVVM-blue)
 
 ---
 
-## ✨ About the Project
+## 🐉 Task 4 — REST API Integration
 
-**Mystical Manor Adventure** is an interactive fantasy game where players explore a mysterious mansion, discover magical paintings, battle supernatural enemies, collect treasures, and unlock achievements.
+![Retrofit](https://img.shields.io/badge/Retrofit-2.11.0-48B983)
+![REST API](https://img.shields.io/badge/API-REST-blue)
+![Gson](https://img.shields.io/badge/JSON-Gson-orange)
+![OkHttp](https://img.shields.io/badge/HTTP-OkHttp-green)
+![Coroutines](https://img.shields.io/badge/Kotlin-Coroutines-7F52FF)
 
-The application was developed and extended across three Android development assignments, gradually introducing Jetpack Compose, navigation, reactive state management, MVVM architecture, and persistent local storage.
+### The Arcane Bestiary
 
-The latest addition is **Explorer's Journal**, a quest management system that allows players to create their own adventures, track progress, and preserve their quest history.
+The Arcane Bestiary is an online magical encyclopedia
+integrated into Mystical Manor Adventure.
 
-## 🎮 Gameplay Features
+Players can discover magical creatures, explore their
+characteristics, read special abilities, and learn about
+their combat statistics.
+
+All creature information is retrieved from the public
+Dungeons & Dragons 5e SRD REST API using Retrofit.
+
+### Features
 
 | Feature | Description |
 |---|---|
-| 🎭 Character Selection | Choose between Artist, Explorer, and Mage, each with unique abilities. |
-| 🏰 Manor Exploration | Explore rooms and unlock hidden locations. |
-| 🖼️ Magical Paintings | Discover mysterious paintings and enter their worlds. |
-| ⚔️ Combat System | Fight the Shadow Guardian using attacks, special abilities, and healing potions. |
-| 🎒 Inventory | Collect and use magical items, keys, and treasures. |
-| 🏆 Achievements | Unlock achievements through exploration and combat. |
-| ✨ Visual Effects | Animated transitions, magical particles, portal effects, and combat feedback. |
-| 📜 Explorer's Journal | Create, edit, delete, and track personal quests using persistent storage. |
+| Online Bestiary | Retrieves creature data from a remote REST API. |
+| Creature Details | Displays hit points, armor class, challenge rating, and ability scores. |
+| Special Abilities | Displays creature abilities and actions. |
+| Search | Filters downloaded creatures by name. |
+| Loading State | Shows a progress indicator during API requests. |
+| Error Handling | Displays understandable network and server errors. |
+| Retry | Allows users to repeat failed requests. |
+| Refresh | Retrieves an updated creature list from the API. |
+| Navigation | Connects the creature list and detail screens. |
 
-## 📜 Explorer's Journal — Task 3
+### REST API
 
-Explorer's Journal introduces a persistent quest management system integrated into the existing adventure.
+**API Provider:** [D&D 5e SRD API](https://www.dnd5eapi.co/)
 
-### Quest Management
+**Base URL:**
 
-- **Create:** Add new quests with a title, description, and gold reward.
-- **Read:** Browse quests and open detailed information.
-- **Update:** Edit existing quests with input validation.
-- **Delete:** Remove quests using a confirmation dialog.
-- **Persistence:** Keep quests and their history after restarting the application.
+`https://www.dnd5eapi.co/api/2014/`
 
-### Quest Progression
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/monsters` | Retrieves the creature collection. |
+| GET | `/monsters/{index}` | Retrieves detailed creature information. |
 
-Each quest follows a structured workflow:
+No API key or authentication is required.
 
-**DRAFT → ACTIVE → COMPLETED**
+### Architecture
 
-Players can create a quest, start it, and mark it as completed.
-
-The system prevents invalid status transitions and restricts editing of completed quests.
-
-Every creation, edit, and status transition is recorded in the activity history.
-
-### Statistics and History
-
-The Journal displays:
-
-- Total number of quests
-- Active quests
-- Completed quests
-- Quest status and planned rewards
-- Timestamped activity history
-
-All information is loaded from the local Room database and updated reactively.
-
----
-
-## 📱 Screenshots
-
-
-### Explorer's Journal
-
-<p align="center">
-  <img src="task3-quest-board.jpg" width="250">
-  <img src="task3-quest-board1.jpg" width="250">
-  <img src="task3-quest-board2.jpg" width="250">
-</p>
-
-<p align="center">
-  <img src="task3-quest-board3.jpg" width="250">
-  <img src="task3-quest-board4.jpg" width="250">
-  <img src="task3-quest-board5.jpg" width="250">
-</p>
-
-<p align="center">
-  <img src="task3-quest-board6.jpg" width="250">
-</p>
-
----
-
-## 🏗️ Architecture
-
-The application follows the **Model-View-ViewModel (MVVM)** architecture.
-
-The Explorer's Journal feature separates UI presentation, state management, business logic, and data storage.
+The REST API integration follows the existing MVVM
+architecture.
 
 ```text
 Jetpack Compose UI
         |
-        | User actions
         v
-JournalViewModel
-        |
-        | StateFlow / Coroutines
-        v
-JournalRepository
-        |
-        | CRUD / Transactions
-        v
-Room DAO
+BestiaryViewModel
         |
         v
-SQLite Database
+BestiaryRepository
         |
-        | Room Flow
         v
-Reactive UI Updates
+Retrofit API Interface
+        |
+        v
+OkHttp Client
+        |
+        v
+D&D REST API
 ```
 
-### Architecture Components
+The API responses are converted from JSON into Kotlin
+data classes using Gson.
 
-| Component | Responsibility |
-|---|---|
-| Jetpack Compose | Declarative UI and reusable components |
-| Navigation Compose | Screen navigation and back stack |
-| ViewModel | UI state management and user actions |
-| StateFlow | Observable application state |
-| Repository | Data access and business operations |
-| Room Entity | Database table definitions |
-| Room DAO | Database queries and CRUD operations |
-| Kotlin Coroutines | Asynchronous database operations |
-| Room Flow | Automatic updates when stored data changes |
+Kotlin Coroutines provide asynchronous network
+operations, while StateFlow exposes observable UI state.
 
-### Local Database
+Compose collects the state using
+`collectAsStateWithLifecycle()`.
 
-The application uses Room with two related tables:
+### UI State Management
 
-**`quests`**
-- Quest ID
-- Title and description
-- Gold reward
-- Status
-- Creation and modification timestamps
+The application uses a sealed interface to represent:
 
-**`quest_history`**
-- History entry ID
-- Related quest ID
-- Action description
-- Timestamp
+- **Idle** — the initial state.
+- **Loading** — a network request is in progress.
+- **Success** — API data has been received.
+- **Error** — the request has failed.
 
-A foreign key connects the history table to its quest.
+The user interface reacts automatically to these states.
 
-Room transactions keep quest updates and activity history consistent.
+### Screenshots
+
+#### Arcane Bestiary
+
+<p align="center">
+  <img src="screenshots/task4-list.jpg" width="250">
+  <img src="screenshots/task4-details.jpg" width="250">
+  <img src="screenshots/task4-abilities.jpg" width="250">
+</p>
+
+#### Search, Loading and Error Handling
+
+<p align="center">
+  <img src="screenshots/task4-search.jpg" width="250">
+  <img src="screenshots/task4-loading.jpg" width="250">
+  <img src="screenshots/task4-error.jpg" width="250">
+</p>
+
+### Local and Remote Data Sources
+
+Mystical Manor Adventure now combines two data sources:
+
+| Data Source | Technology | Responsibility |
+|---|---|---|
+| Local | Room / SQLite | Persistent quests and activity history. |
+| Remote | Retrofit / REST API | Magical creature information. |
+
+Both features use independent repositories and
+ViewModels to maintain separation of concerns.
+
+### How to Use
+
+1. Launch Mystical Manor Adventure.
+2. Select a character and enter the Grand Hall.
+3. Open the Arcane Bestiary.
+4. Browse or search for magical creatures.
+5. Select a creature to view its detailed information.
+6. Use Refresh to request updated data.
+7. If a network error occurs, use Try Again.
+
+### Task 4 Implementation
+
+- Kotlin data classes for JSON responses
+- Retrofit REST API interface
+- OkHttp network client
+- Gson JSON converter
+- Asynchronous requests using Coroutines
+- Repository and ViewModel integration
+- StateFlow and lifecycle-aware state collection
+- Loading, success, error and empty states
+- LazyColumn with stable item keys
+- List and detail navigation
+- Network error handling and retry functionality
+
+### Data Attribution
+
+Creature information is provided by the D&D 5e SRD API.
+See the API project and its documentation for source
+data and applicable licensing information.
 
 ---
-
-## 🛠️ Technologies
-
-- **Language:** Kotlin
-- **Platform:** Android
-- **UI:** Jetpack Compose and Material 3
-- **Architecture:** MVVM
-- **Navigation:** Navigation Compose
-- **State Management:** ViewModel, StateFlow, remember, rememberSaveable
-- **Local Storage:** Room and SQLite
-- **Asynchronous Operations:** Kotlin Coroutines and Flow
-- **Build System:** Gradle Kotlin DSL
-- **IDE:** Android Studio
-
----
-
-## 🚀 How to Run
-
-1. Clone or download this repository.
-2. Open the project in **Android Studio**.
-3. Wait for Gradle synchronization to complete.
-4. Connect an Android device or start an Android emulator.
-5. Select the **app** run configuration.
-6. Click **Run ▶**.
-
-### How to Play
-
-1. Enter your name and select a character class.
-2. Enter the Mystical Manor.
-3. Explore rooms, discover paintings, and collect treasures.
-4. Enter magical paintings and fight enemies.
-5. Open Inventory to view and use collected items.
-6. Open Profile to view achievements and character statistics.
-
-### How to Use Explorer's Journal
-
-1. Enter the **Grand Hall**.
-2. Select **Explorer's Journal**.
-3. Create a quest using the **Create New Quest** button.
-4. Open the quest to view or edit its details.
-5. Start the quest and mark it as completed.
-6. Review the activity history.
-7. Restart the application to verify that journal data is preserved.

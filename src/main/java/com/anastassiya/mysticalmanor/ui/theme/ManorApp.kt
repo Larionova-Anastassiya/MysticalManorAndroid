@@ -55,6 +55,11 @@ import com.anastassiya.mysticalmanor.journal.JournalListScreen
 import com.anastassiya.mysticalmanor.journal.JournalDetailScreen
 import com.anastassiya.mysticalmanor.journal.JournalFormScreen
 
+import com.anastassiya.mysticalmanor.bestiary.BestiaryViewModel
+import com.anastassiya.mysticalmanor.bestiary.BestiaryListScreen
+import com.anastassiya.mysticalmanor.bestiary.BestiaryDetailScreen
+import com.anastassiya.mysticalmanor.data.repository.BestiaryRepository
+
 
 
 @Composable
@@ -68,6 +73,16 @@ fun ManorApp(
     val journalVm: JournalViewModel = viewModel(
         factory = remember(journalRepository) {
             JournalViewModelFactory(journalRepository)
+        }
+    )
+
+    val bestiaryRepository = remember {
+        BestiaryRepository()
+    }
+
+    val bestiaryVm: BestiaryViewModel = viewModel(
+        factory = remember(bestiaryRepository) {
+            BestiaryViewModel.factory(bestiaryRepository)
         }
     )
 
@@ -176,8 +191,12 @@ fun ManorApp(
                                 state = state,
                                 onOpenJournal = {
                                     navController.navigate("journal")
+                                },
+                                onOpenBestiary = {
+                                    navController.navigate("bestiary")
                                 }
                             )
+
                         }
                     }
 
@@ -302,6 +321,60 @@ fun ManorApp(
                             }
                         }
                     }
+
+
+                    composable("bestiary") {
+
+                        BestiaryListScreen(
+                            vm = bestiaryVm,
+
+                            onOpenMonster = { index ->
+                                navController.navigate(
+                                    "bestiary/detail/$index"
+                                )
+                            },
+
+                            onBack = {
+                                navController.popBackStack()
+                            }
+                        )
+                    }
+
+                    composable("bestiary/detail/{monsterIndex}") { entry ->
+
+                        val monsterIndex = entry.arguments
+                            ?.getString("monsterIndex")
+
+                        if (monsterIndex.isNullOrBlank()) {
+
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+
+                                Text("Invalid creature ID")
+
+                                TextButton(
+                                    onClick = {
+                                        navController.popBackStack()
+                                    }
+                                ) {
+                                    Text("Go back")
+                                }
+                            }
+
+                        } else {
+
+                            BestiaryDetailScreen(
+                                vm = bestiaryVm,
+                                monsterIndex = monsterIndex,
+
+                                onBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                    }
+
                 }
 
                 SnackbarHost(
@@ -467,7 +540,8 @@ fun WelcomeScreen(vm: ManorViewModel) {
 fun HallScreen(
     vm: ManorViewModel,
     state: GameUiState,
-    onOpenJournal: () -> Unit = {}
+    onOpenJournal: () -> Unit = {},
+    onOpenBestiary: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -519,6 +593,10 @@ fun HallScreen(
         ManorButton(
             text = "📜 EXPLORER'S JOURNAL",
             onClick = onOpenJournal
+        )
+        ManorButton(
+            text = "🐉 ARCANE BESTIARY",
+            onClick = onOpenBestiary
         )
         OutlinedButton(
             onClick = vm::restart,
